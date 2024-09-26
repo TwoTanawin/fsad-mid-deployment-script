@@ -1,0 +1,44 @@
+services:
+  lab_06_db:
+    image: postgres:latest
+    container_name: lab_06_db
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5433:5432"
+    networks:
+      - lab_06_network
+
+  lab_06_pgadmin:
+    image: dpage/pgadmin4
+    container_name: lab_06_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8081:80"
+    depends_on:
+      - lab_06_db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - lab_06_network
+
+  lab_06_web:
+    image: twotanawin/lab_06_web:0.1  # Modify to use the pushed image
+    container_name: lab_06_web
+    command: bash -c "bundle exec rake db:create && bundle exec rake db:migrate && ./bin/rails server -b 0.0.0.0 -p 3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - lab_06_db
+    networks:
+      - lab_06_network
+
+volumes:
+  pgadmin_data:
+
+networks:
+  lab_06_network:
+    external: true
