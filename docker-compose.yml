@@ -1,46 +1,46 @@
 version: '3'
 
 services:
-  st123975_movie_db:
+  app_db:
     image: postgres:latest
-    container_name: st123975_movie_db
+    container_name: app_db
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
     ports:
       - "5433:5432"
     networks:
-      - st123975_movie_network
+      - app_network
 
-  st123975_movie_pgadmin:
+  app_pgadmin:
     image: dpage/pgadmin4
-    container_name: st123975_movie_pgadmin
+    container_name: app_pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin123
     ports:
       - "8081:80"
     depends_on:
-      - st123975_movie_db
+      - app_db
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
-      - st123975_movie_network
+      - app_network
 
-  st123975_movie_web:
-    image: twotanawin/st123975_movie_web:0.1  # Modify to use the pushed image
-    container_name: st123975_movie_web
+  app_web:
+    image: twotanawin/app_web:0.2 
+    container_name: app_web
     command: bash -c "bundle exec rake db:create && bundle exec rake db:migrate && ./bin/rails server -b 0.0.0.0 -p 3000"
     ports:
       - "3000:3000"
     depends_on:
-      - st123975_movie_db
+      - app_db
     networks:
-      - st123975_movie_network
+      - app_network
 
 volumes:
   pgadmin_data:
 
 networks:
-  st123975_movie_network:
+  app_network:
     external: true
